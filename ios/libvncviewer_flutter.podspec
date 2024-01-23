@@ -11,13 +11,22 @@ LibVncViewer Flutter plugins.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Yangzhao' => 'yangzhaojava@gmail.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.platform = :ios, '11.0'
-
+  s.vendored_libraries = 'frameworks/libvncclient.a'
+  s.libraries = 'z'
+  
+  s.resource = ['Assets/*']
+  
+  current_directory = __dir__
+  puts "Current directory: #{current_directory}"
+  
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => "#{current_directory}/include" }
+  
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
 end

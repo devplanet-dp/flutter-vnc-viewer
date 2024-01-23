@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:libvncviewer_flutter/VncViewerWidget.dart';
 import 'package:libvncviewer_flutter/libvncviewer_flutter.dart';
-import 'package:libvncviewer_flutter_example/VncViewerWidget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,7 +59,7 @@ class AppPage extends StatelessWidget {
   TextEditingController _hostNameEditingController =
       new TextEditingController();
 
-  TextEditingController _portEditingController = new TextEditingController();
+  TextEditingController _portEditingController = new TextEditingController()..text="5900";
 
   TextEditingController _passwordEditingController =
       new TextEditingController();

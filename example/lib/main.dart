@@ -56,13 +56,14 @@ class _MyAppState extends State<MyApp> {
 }
 
 class AppPage extends StatelessWidget {
-  TextEditingController _hostNameEditingController =
-      new TextEditingController();
+  TextEditingController _hostNameEditingController = new TextEditingController()
+    ..text = "";
 
-  TextEditingController _portEditingController = new TextEditingController()..text="5900";
+  TextEditingController _portEditingController = new TextEditingController()
+    ..text = "5900";
 
-  TextEditingController _passwordEditingController =
-      new TextEditingController();
+  TextEditingController _passwordEditingController = new TextEditingController()
+    ..text = "123456";
 
   @override
   Widget build(BuildContext context) {

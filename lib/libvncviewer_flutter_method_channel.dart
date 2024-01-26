@@ -17,9 +17,8 @@ class MethodChannelLibvncviewerFlutter extends LibvncviewerFlutterPlatform {
   }
 
   @override
-  Future<String?> initVncClient(
-      String hostName, int port, String password) async {
-    final datas = await methodChannel.invokeMethod<String>('initVncClient',
+  Future<int?> initVncClient(String hostName, int port, String password) async {
+    final datas = await methodChannel.invokeMethod<int>('initVncClient',
         {"hostName": hostName, "port": port, "password": password});
     return datas;
   }

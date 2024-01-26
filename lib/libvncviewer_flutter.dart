@@ -5,7 +5,7 @@ class LibvncviewerFlutter {
     return LibvncviewerFlutterPlatform.instance.getPlatformVersion();
   }
 
-  Future<String?> initVncClient(String hostName, int port, String password) {
+  Future<int?> initVncClient(String hostName, int port, String password) {
     return LibvncviewerFlutterPlatform.instance
         .initVncClient(hostName, port, password);
   }

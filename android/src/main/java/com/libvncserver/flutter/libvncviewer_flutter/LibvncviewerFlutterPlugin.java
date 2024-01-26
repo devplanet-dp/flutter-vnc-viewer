@@ -10,8 +10,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.libvncviewer.flutter.nativelib.RfbClientCallBack;
-import com.libvncviewer.flutter.nativelib.VncClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +37,7 @@ public class LibvncviewerFlutterPlugin implements FlutterPlugin, MethodCallHandl
 
     private EventChannel eventChannel;
 
-    private Map<Long,EventChannel.EventSink> eventSinkMap = new HashMap<>();
+    private Map<Long, EventChannel.EventSink> eventSinkMap = new HashMap<>();
 
     private Integer removeSinkLock = 0;
 
@@ -50,7 +48,7 @@ public class LibvncviewerFlutterPlugin implements FlutterPlugin, MethodCallHandl
     @RequiresApi(api = Build.VERSION_CODES.FROYO)
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        this.flutterPluginBinding=flutterPluginBinding;
+        this.flutterPluginBinding = flutterPluginBinding;
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "libvncviewer_flutter");
         channel.setMethodCallHandler(this);
         eventChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "libvncviewer_flutter_eventchannel");
@@ -58,23 +56,19 @@ public class LibvncviewerFlutterPlugin implements FlutterPlugin, MethodCallHandl
 
             @Override
             public void onListen(Object arguments, EventChannel.EventSink events) {
-                if (arguments instanceof HashMap){
+                if (arguments instanceof HashMap) {
                     Map args = (Map) arguments;
                     String clientId = args.get("clientId").toString();
-                    eventSinkMap.put(Long.valueOf(clientId),events);
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("flag","onReady");
-                        events.success(jsonObject.toString());
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+                    eventSinkMap.put(Long.valueOf(clientId), events);
+                    Map respData = new HashMap();
+                    respData.put("flag", "onReady");
+                    events.success(respData);
                 }
             }
 
             @Override
             public void onCancel(Object arguments) {
-                if (arguments instanceof HashMap){
+                if (arguments instanceof HashMap) {
                     Map args = (Map) arguments;
                     String clientId = args.get("clientId").toString();
                     synchronized (removeSinkLock) {
@@ -105,7 +99,7 @@ public class LibvncviewerFlutterPlugin implements FlutterPlugin, MethodCallHandl
             int x = call.argument("x");
             int y = call.argument("y");
             int mask = call.argument("mask");
-            new VncClient().sendPointer(clientId,x,y,mask);
+            new VncClient().sendPointer(clientId, x, y, mask);
         }
         if (call.method.equals("initVncClient")) {
             TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = flutterPluginBinding.getTextureRegistry().createSurfaceTexture();
@@ -117,81 +111,52 @@ public class LibvncviewerFlutterPlugin implements FlutterPlugin, MethodCallHandl
             long clientId = new VncClient().rfbInitClient(hostName, port, password, surface, new RfbClientCallBack() {
                 @Override
                 public void onError(long clientId, int code, String msg) {
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("flag","onError");
-                        jsonObject.put("code",code);
-                        jsonObject.put("msg",msg);
-                        handler.post(()->{
-                            EventChannel.EventSink sink = eventSinkMap.get(clientId);
-                            if (sink != null) {
-                                sink.success(jsonObject.toString());
-                            }
-                        });
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+                    Map respData = new HashMap();
+                    respData.put("flag", "onError");
+                    respData.put("code", code);
+                    respData.put("msg", msg);
+                    handler.post(() -> {
+                        EventChannel.EventSink sink = eventSinkMap.get(clientId);
+                        if (sink != null) {
+                            sink.success(respData);
+                        }
+                    });
                 }
 
                 @Override
                 public void onClosed(long clientId) {
-                    surfaceTexture.release();
                     surface.release();
+                    surfaceTexture.release();
                     surfaceTextureEntry.release();
                 }
 
                 @Override
                 public void onConnectSuccess(long clientId, int width, int height) {
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("flag","onConnectSuccess");
-                        jsonObject.put("width",width);
-                        jsonObject.put("height",height);
-                        handler.post(()->{
-                            EventChannel.EventSink sink = eventSinkMap.get(clientId);
-                            if (sink != null) {
-                                sink.success(jsonObject.toString());
-                            }
-                        });
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
                 }
 
                 @Override
-                public void imageData(long clientId, byte[] datas, int width, int height) {
-
+                public void onFrameUpdate(long clientId, byte[] datas, int width, int height) {
                 }
 
                 @Override
                 public void imageResize(long clientId, int width, int height) {
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("flag","imageResize");
-                        jsonObject.put("width",width);
-                        jsonObject.put("height",height);
-                        handler.post(()->{
-                            Toast toast=Toast.makeText(flutterPluginBinding.getApplicationContext(), "连接成功", Toast.LENGTH_SHORT);
-                            toast.show();
-                            EventChannel.EventSink sink = eventSinkMap.get(clientId);
-                            if (sink != null) {
-                                sink.success(jsonObject.toString());
-                            }
-                        });
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+                    long textureId = surfaceTextureEntry.id();
+                    Map respData = new HashMap();
+                    respData.put("flag", "imageResize");
+                    respData.put("width", width);
+                    respData.put("height", height);
+                    respData.put("textureId", textureId);
+                    handler.post(() -> {
+                        Toast toast = Toast.makeText(flutterPluginBinding.getApplicationContext(), "连接成功", Toast.LENGTH_SHORT);
+                        toast.show();
+                        EventChannel.EventSink sink = eventSinkMap.get(clientId);
+                        if (sink != null) {
+                            sink.success(respData);
+                        }
+                    });
                 }
             });
-            long surfaceId = surfaceTextureEntry.id();
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("clientId",clientId);
-                jsonObject.put("surfaceId",surfaceId);
-                result.success(jsonObject.toString());
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
+            result.success(clientId);
         }
 
 //    result.notImplemented();

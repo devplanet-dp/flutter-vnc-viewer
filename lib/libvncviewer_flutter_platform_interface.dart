@@ -28,19 +28,19 @@ abstract class LibvncviewerFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<String?> initVncClient(String hostName, int port, String password) {
+  Future<int?> initVncClient(String hostName, int port, String password) {
     throw UnimplementedError('initVncClient() has not been implemented.');
   }
 
   void closeVncClient(int clientId) {
-    throw UnimplementedError('initVncClient() has not been implemented.');
+    throw UnimplementedError('closeVncClient() has not been implemented.');
   }
 
   void startVncClient(int clientId) {
-    throw UnimplementedError('initVncClient() has not been implemented.');
+    throw UnimplementedError('startVncClient() has not been implemented.');
   }
 
   void sendPointer(int clientId, int x, int y, int mask) {
-    throw UnimplementedError('initVncClient() has not been implemented.');
+    throw UnimplementedError('sendPointer() has not been implemented.');
   }
 }

@@ -1,8 +1,9 @@
+#include "include/libvncviewer_flutter/libvncviewer_flutter_plugin.h"
+
 #include <flutter_linux/flutter_linux.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "include/libvncviewer_flutter/libvncviewer_flutter_plugin.h"
 #include "libvncviewer_flutter_plugin_private.h"
 
 // This demonstrates a simple unit test of the C portion of this plugin's

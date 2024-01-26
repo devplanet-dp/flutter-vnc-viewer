@@ -8,3 +8,6 @@
 
 // Handles the getPlatformVersion method call.
 FlMethodResponse *get_platform_version();
+
+FlMethodResponse *initVncClient(const gchar *hostname, int64_t port,
+                                const gchar *password);

@@ -17,8 +17,6 @@
 
 @property(nonatomic) rfbClient* cl;
 
-@property(nonatomic,strong) GLRender* glRender;
-
 @property uint8_t* frameBuffer;
 
 @property int frameBufferSize;
@@ -54,9 +52,14 @@ static char *ReadPassword(rfbClient *cl) {
 static void update(rfbClient *cl, int x, int y, int w, int h) {
     int64_t* clientId = (int64_t *)rfbClientGetClientData(cl, 0);
     VncClient* client = [clientDictionary objectForKey:@(*clientId)];
-    [client.glRender refreshPixelBuffer:cl->frameBuffer];
+    for(int i=0;i<client.frameBufferSize;i+=4){
+        if(i==0){
+            continue;
+        }
+        cl->frameBuffer[i-1]=0xFF;
+    }
     if(client.frameCallBack){
-        client.frameCallBack(cl->frameBuffer,w,h);
+        client.frameCallBack(cl->frameBuffer,client.width,client.height);
     }
     
 }
@@ -108,9 +111,9 @@ static rfbBool resize(rfbClient *cl) {
         default:
             cl->format.depth = 24;
             cl->format.bitsPerPixel = 32;
-            cl->format.redShift = 0;
+            cl->format.redShift = 16;
             cl->format.greenShift = 8;
-            cl->format.blueShift = 16;
+            cl->format.blueShift = 0;
             cl->format.redMax = 0xff;
             cl->format.greenMax = 0xff;
             cl->format.blueMax = 0xff;
@@ -130,8 +133,10 @@ static rfbBool resize(rfbClient *cl) {
     cl->appData.qualityLevel = 1;
     
     SetFormatAndEncodings(cl);
-    [client.glRender createCVBufferWithWidth:width withHeight:height];
     update(cl, 0, 0, width, height);
+    if(client.frameCallBack){
+        client.frameCallBack(cl->frameBuffer,client.width,client.height);
+    }
     return true;
 }
 
@@ -181,7 +186,6 @@ static void cleanup(rfbClient *cl) {
         self.port=port;
         self.password=password;
         self.running=true;
-        self.glRender=[[GLRender alloc] init];
         struct timeval te;
         gettimeofday(&te, NULL);
         int64_t milliseconds = te.tv_sec * 1000LL + te.tv_usec / 1000;
@@ -196,12 +200,13 @@ static void cleanup(rfbClient *cl) {
 
 -(void)initRfbClient{
     self.cl = rfbGetClient(8, 3, 4);
+    self.cl->connectTimeout=30;
     self.cl->MallocFrameBuffer = resize;
     self.cl->canHandleNewFBSize = TRUE;
     self.cl->GotFrameBufferUpdate = update;
     self.cl->HandleKeyboardLedState = kbd_leds;
     self.cl->HandleTextChat = text_chat;
-    // self.cl->GotXCutText = got_selection;
+    self.cl->GotXCutText = got_selection;
     rfbClientSetClientData(self.cl, 0,&_id);
     [clientDictionary setObject:self forKey:@(self.id)];
     self.cl->GetPassword = ReadPassword;
@@ -220,12 +225,10 @@ static void cleanup(rfbClient *cl) {
     
     dispatch_async(global, ^{
         if (!rfbInitClient(self.cl, 0, NULL)) {
-            self.running=false;
             [self sendErrorMsg:@"VNC客户端初始化失败,请检查连接配置信息!"];
             return;
         }
         //      callback(id, 0, "rfb客户端初始化成功");
-        self.running=true;
         while (self.running) {
             int i = WaitForMessage(self.cl, 500);
             if (i < 0) {
@@ -245,17 +248,15 @@ static void cleanup(rfbClient *cl) {
 
 -(void)close{
     NSLog(@"VNC Client Closed");
-    
-    if (self.running && self.cl->GotFrameBufferUpdate) {
+    self.running = false;
+    if (self.cl->GotFrameBufferUpdate) {
         close(self.cl->sock);
     }
-    self.running = false;
     if (self.frameBuffer) {
         free(self.frameBuffer) ;
         self.frameBuffer = NULL;
     }
     [clientDictionary removeObjectForKey:@(self.id)];
-    [self.glRender releaseGL];
 }
 
 -(void) sendErrorMsg:(NSString*) msg{
@@ -288,8 +289,8 @@ static void cleanup(rfbClient *cl) {
     return self.id;
 }
 
--(GLRender*)getGLRender{
-    return self.glRender;
+-(int)getFrameBufferSize{
+    return _frameBufferSize;
 }
 
 @end

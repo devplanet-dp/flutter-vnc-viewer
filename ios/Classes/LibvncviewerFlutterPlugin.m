@@ -10,27 +10,8 @@ static void rfbClientCallback(int64_t id,int code,NSString* flag,NSString* msg){
             NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
             [mutableDictionary setObject:flag forKey:@"flag"];
             [mutableDictionary setObject:@(code) forKey:@"code"];
-            
-            if([flag isEqualToString:@"imageResize"]){
-                NSArray* array = [msg componentsSeparatedByString:@","];
-                NSString* width = [array objectAtIndex:0];
-                NSString* height = [array objectAtIndex:1];
-                [mutableDictionary setObject:@([width intValue]) forKey:@"width"];
-                [mutableDictionary setObject:@([height intValue]) forKey:@"height"];
-            }else{
-                [mutableDictionary setObject:msg forKey:@"msg"];
-            }
-            
-            NSError *error;
-            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:mutableDictionary
-                                                               options:NSJSONWritingPrettyPrinted
-                                                                 error:&error];
-            if (!jsonData) {
-                NSLog(@"Error creating JSON data: %@", error.localizedDescription);
-                return;
-            }
-            NSString *resData = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            sink(resData);
+            [mutableDictionary setObject:msg forKey:@"msg"];
+            sink(mutableDictionary);
         }
     });
 }
@@ -64,7 +45,7 @@ static void rfbClientCallback(int64_t id,int code,NSString* flag,NSString* msg){
                                        eventSink:(FlutterEventSink)events {
     int64_t clientId=[[arguments objectForKey:@"clientId"] longLongValue];
     [flutterEventSinkDictionary setObject:events forKey:@(clientId)];
-    rfbClientCallback(clientId, 0, @"onReady", @"onReady");
+    events(@{@"flag":@"onReady"});
     return nil;
 }
 
@@ -101,8 +82,6 @@ static void rfbClientCallback(int64_t id,int code,NSString* flag,NSString* msg){
         
         __weak typeof(self) wself = self;
         
-        client.textureId = [_textures registerTexture:[client getGLRender]];
-        
         [client registerInfoCallBack:rfbClientCallback];
         
         [client registerFrameCallBack:^(uint8_t*data,int w,int h){
@@ -112,15 +91,19 @@ static void rfbClientCallback(int64_t id,int code,NSString* flag,NSString* msg){
         }];
         
         [client registerImageResizeCallBack:^(int width, int height) {
-            NSString* msg = [@"" stringByAppendingFormat:@"%d,%d",width,height];
-            rfbClientCallback([client getClientId], 0, @"imageResize", msg);
+            client.textureId = [self.textures registerTexture:[client getGLRender]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                FlutterEventSink sink = [flutterEventSinkDictionary objectForKey:@(client.getClientId)];
+                if(sink){
+                    sink(@{@"flag":@"imageResize",@"width":@(width),@"height":@(height),@"textureId":@(client.textureId)});
+                }
+            });
+            
         }];
         
         [client initRfbClient];
         
-        
-        NSString* msg = [NSString stringWithFormat:@"{\"clientId\":%lld,\"surfaceId\":%d}",[client getClientId],client.textureId];
-        result(msg);
+        result(@([client getClientId]));
     }
     //    result(FlutterMethodNotImplemented);
 }

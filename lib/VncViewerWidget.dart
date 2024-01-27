@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:libvncviewer_flutter/libvncviewer_flutter.dart';
+import 'dart:io';
 
 class VncViewerWidget extends StatefulWidget {
   String hostName;
@@ -16,7 +17,8 @@ class VncViewerWidget extends StatefulWidget {
   State<StatefulWidget> createState() => _VncViewerWidgetState();
 }
 
-class _VncViewerWidgetState extends State<VncViewerWidget> {
+class _VncViewerWidgetState extends State<VncViewerWidget>
+    with WidgetsBindingObserver {
   static const EventChannel _channel =
       const EventChannel('libvncviewer_flutter_eventchannel');
 
@@ -55,6 +57,7 @@ class _VncViewerWidgetState extends State<VncViewerWidget> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       _clientId = await _libvncviewerFlutterPlugin.initVncClient(
               widget.hostName, widget.port, widget.password) ??
@@ -103,6 +106,19 @@ class _VncViewerWidgetState extends State<VncViewerWidget> {
         }, cancelOnError: true);
       }
     });
+  }
+
+  @override
+  void didChangeMetrics() {
+    // 当窗口变化时调用
+    super.didChangeMetrics();
+    print('Window metrics changed');
+
+    if (Platform.isMacOS || Platform.isLinux) {
+      Future.delayed(Duration(milliseconds: 500), () {
+        _streamController.add(1);
+      });
+    }
   }
 
   @override
@@ -194,14 +210,12 @@ class _VncViewerWidgetState extends State<VncViewerWidget> {
                     )),
               );
             } else {
-              if (_imageWidth > 0 && _width < _imageWidth) {
+              if (_imageWidth > 0 && _width < _height) {
                 _scale = _width / _imageWidth;
                 _height = _imageHeight * _scale;
               } else {
-                if (_imageHeight > 0 && _height <= _imageHeight) {
-                  _scale = _height / _imageHeight;
-                  _width = _imageWidth * _scale;
-                }
+                _scale = _height / _imageHeight;
+                _width = _imageWidth * _scale;
               }
 
               content = Container(
@@ -291,5 +305,6 @@ class _VncViewerWidgetState extends State<VncViewerWidget> {
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _streamSubscription!.cancel();
     _libvncviewerFlutterPlugin.closeVncClient(_clientId);
+    WidgetsBinding.instance?.removeObserver(this);
   }
 }

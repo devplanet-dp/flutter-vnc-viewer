@@ -11,11 +11,19 @@ LibVncViewer Flutter plugins.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Yangzhao' => 'yangzhaojava@gmail.com' }
 
   s.source           = { :path => '.' }
   s.source_files     = 'Classes/**/*'
   s.dependency 'FlutterMacOS'
+
+  s.vendored_libraries = 'frameworks/libvncclient.a'
+  s.libraries = 'z'
+  
+  current_directory = __dir__
+ puts "Current directory: #{current_directory}"
+ 
+ s.xcconfig = { "HEADER_SEARCH_PATHS" => "#{current_directory}/include","SWIFT_OBJC_BRIDGING_HEADER" => "#{current_directory}/Classes/LibvncviewerFlutterPlugin-Bridging-Header.h"}
 
   s.platform = :osx, '10.11'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }

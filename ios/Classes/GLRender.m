@@ -27,11 +27,6 @@ static GLfloat texCoords[] = {
     
 };
 
-static unsigned int indices[] = {
-    0, 2, 3,
-    1, 4, 5
-};
-
 @implementation GLRender
 {
     CVPixelBufferRef pixelBuffer;
@@ -124,7 +119,6 @@ static unsigned int indices[] = {
     
     [self loadShaders];
     
-    
 }
 
 - (void)releaseGL {
@@ -192,14 +186,14 @@ static unsigned int indices[] = {
     NSString *vertShaderPathname, *fragShaderPathname;
     
     _program = glCreateProgram();
-    
-    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"vsh"];
+    NSBundle *mainBundle=[NSBundle bundleForClass:[GLRender class]];
+    vertShaderPathname = [mainBundle pathForResource:@"Shader" ofType:@"vsh"];
     if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
         NSLog(@"failed to compile vertex shader");
         return NO;
     }
     
-    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"fsh"];
+    fragShaderPathname = [mainBundle pathForResource:@"Shader" ofType:@"fsh"];
     if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
         NSLog(@"failed to compile fragment shader");
         return NO;

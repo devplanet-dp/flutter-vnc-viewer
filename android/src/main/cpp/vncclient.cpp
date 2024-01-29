@@ -100,19 +100,10 @@ static rfbBool resize(rfbClient *client) {
     client->format.greenMax = 0xff;
     client->format.blueMax = 0xff;
   }
-  //  client->appData.encodingsString = "copyrect zlib hextile raw";
-  //  client->appData.compressLevel = 0;
-  //  client->appData.qualityLevel = 9;
-
-  //  client->appData.encodingsString =
-  //      "copyrect tight zrle ultra zlib hextile corre rre raw";
-  //  client->appData.compressLevel = 5;
-  //  client->appData.qualityLevel = 7;
-
-  client->appData.encodingsString =
-      "copyrect zrle ultra zlib hextile corre rre raw";
-  client->appData.compressLevel = 9;
-  client->appData.qualityLevel = 1;
+  //    设置编码方式和压缩等级（默认）
+  //    client->appData.encodingsString = "copyrect zrle ultra zlib hextile
+  //    corre rre raw"; client->appData.compressLevel = 3;
+  //    client->appData.qualityLevel = 5;
 
   SetFormatAndEncodings(client);
 
@@ -186,6 +177,7 @@ static void update(rfbClient *cl, int x, int y, int w, int h) {
   //  }
   t->javaVM->DetachCurrentThread();
 }
+
 static void kbd_leds(rfbClient *cl, int value, int pad) {
   /* note: pad is for future expansion 0=unused */
   fprintf(stderr, "Led State= 0x%02X\n", value);

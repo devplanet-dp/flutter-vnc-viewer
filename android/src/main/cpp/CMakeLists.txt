@@ -35,12 +35,12 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(
-        "include"
+        "../../../../libvncserver/include"
 )
-link_directories(
-        ../../../libs/${ANDROID_ABI}
-)
-#add_subdirectory("libvncserver")
+#link_directories(
+#        ../../../libs/${ANDROID_ABI}
+#)
+add_subdirectory(../../../../libvncserver libvncserver)
 
 FILE(GLOB SRC_LIST_CPP *.c *.cpp *.h)
 

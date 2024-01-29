@@ -10,8 +10,10 @@ class VncViewerWidget extends StatefulWidget {
   String hostName;
   String password;
   int port;
+  bool onlyview;
 
-  VncViewerWidget(this.hostName, this.port, this.password);
+  VncViewerWidget(this.hostName, this.port, this.password,
+      {this.onlyview = true});
 
   @override
   State<StatefulWidget> createState() => _VncViewerWidgetState();
@@ -217,64 +219,28 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                 _scale = _height / _imageHeight;
                 _width = _imageWidth * _scale;
               }
-
-              content = Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                color: Colors.white,
-                child: GestureDetector(
-                    onTap: () {
-                      _showAppBar = !_showAppBar;
-                      _streamController.add(1);
-                      // if (_showAppBar) {
-                      //   Future.delayed(Duration(seconds: 2), () {
-                      //     _showAppBar = false;
-                      //     setState(() {});
-                      //   });
-                      // }
-                    },
-                    child: InteractiveViewer(
-                      scaleEnabled: true,
-                      child: Center(
-                        child: Container(
-                          width: _width,
-                          height: _height,
-                          color: Colors.red,
-                          child: GestureDetector(
-                            // behavior: HitTestBehavior.opaque,
-                            onTapDown: (details) {
-                              _buttonMask = 0x01;
-                              var localPosition = details.localPosition;
-                              _x = (localPosition.dx / _scale).toInt();
-                              _y = (localPosition.dy / _scale).toInt();
-                              _libvncviewerFlutterPlugin.sendPointer(
-                                  _clientId, _x, _y, _buttonMask);
-                            },
-                            onTapUp: (details) {
-                              _buttonMask &= 0xfe;
-                              var localPosition = details.localPosition;
-                              _x = (localPosition.dx / _scale).toInt();
-                              _y = (localPosition.dy / _scale).toInt();
-                              _libvncviewerFlutterPlugin.sendPointer(
-                                  _clientId, _x, _y, _buttonMask);
-                            },
-                            onPanUpdate: (DragUpdateDetails details) {
-                              var localPosition = details.localPosition;
-                              _x = (localPosition.dx / _scale).toInt();
-                              _y = (localPosition.dy / _scale).toInt();
-                              _libvncviewerFlutterPlugin.sendPointer(
-                                  _clientId, _x, _y, _buttonMask);
-                            },
-                            onLongPress: () {
-                              _buttonMask |= 0x04;
-                              _libvncviewerFlutterPlugin.sendPointer(
-                                  _clientId, _x, _y, _buttonMask);
-                            },
-                            onLongPressCancel: () {
-                              _buttonMask &= 0xfb;
-                              _libvncviewerFlutterPlugin.sendPointer(
-                                  _clientId, _x, _y, _buttonMask);
-                            },
+              if (widget.onlyview) {
+                content = Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  color: Colors.white,
+                  child: GestureDetector(
+                      onTap: () {
+                        _showAppBar = !_showAppBar;
+                        _streamController.add(1);
+                        // if (_showAppBar) {
+                        //   Future.delayed(Duration(seconds: 2), () {
+                        //     _showAppBar = false;
+                        //     setState(() {});
+                        //   });
+                        // }
+                      },
+                      child: InteractiveViewer(
+                        scaleEnabled: true,
+                        child: Center(
+                          child: Container(
+                            width: _width,
+                            height: _height,
                             child: Texture(
                               textureId: _textureId,
                               key: _vncViewKey,
@@ -282,9 +248,77 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                             ),
                           ),
                         ),
-                      ),
-                    )),
-              );
+                      )),
+                );
+              } else {
+                content = Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  color: Colors.white,
+                  child: GestureDetector(
+                      onTap: () {
+                        _showAppBar = !_showAppBar;
+                        _streamController.add(1);
+                        // if (_showAppBar) {
+                        //   Future.delayed(Duration(seconds: 2), () {
+                        //     _showAppBar = false;
+                        //     setState(() {});
+                        //   });
+                        // }
+                      },
+                      child: InteractiveViewer(
+                        scaleEnabled: true,
+                        child: Center(
+                          child: Container(
+                            width: _width,
+                            height: _height,
+                            color: Colors.red,
+                            child: GestureDetector(
+                              // behavior: HitTestBehavior.opaque,
+                              onTapDown: (details) {
+                                _buttonMask = 0x01;
+                                var localPosition = details.localPosition;
+                                _x = (localPosition.dx / _scale).toInt();
+                                _y = (localPosition.dy / _scale).toInt();
+                                _libvncviewerFlutterPlugin.sendPointer(
+                                    _clientId, _x, _y, _buttonMask);
+                              },
+                              onTapUp: (details) {
+                                _buttonMask &= 0xfe;
+                                var localPosition = details.localPosition;
+                                _x = (localPosition.dx / _scale).toInt();
+                                _y = (localPosition.dy / _scale).toInt();
+                                _libvncviewerFlutterPlugin.sendPointer(
+                                    _clientId, _x, _y, _buttonMask);
+                              },
+                              onPanUpdate: (DragUpdateDetails details) {
+                                var localPosition = details.localPosition;
+                                _x = (localPosition.dx / _scale).toInt();
+                                _y = (localPosition.dy / _scale).toInt();
+                                _libvncviewerFlutterPlugin.sendPointer(
+                                    _clientId, _x, _y, _buttonMask);
+                              },
+                              onLongPress: () {
+                                _buttonMask |= 0x04;
+                                _libvncviewerFlutterPlugin.sendPointer(
+                                    _clientId, _x, _y, _buttonMask);
+                              },
+                              onLongPressCancel: () {
+                                _buttonMask &= 0xfb;
+                                _libvncviewerFlutterPlugin.sendPointer(
+                                    _clientId, _x, _y, _buttonMask);
+                              },
+                              child: Texture(
+                                textureId: _textureId,
+                                key: _vncViewKey,
+                                filterQuality: FilterQuality.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )),
+                );
+              }
             }
 
             return Stack(

@@ -119,7 +119,12 @@ class AppPage extends StatelessWidget {
                   String port = _portEditingController.text;
                   String password = _passwordEditingController.text;
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return VncViewerWidget(hostName, int.parse(port), password);
+                    return VncViewerWidget(
+                      hostName,
+                      int.parse(port),
+                      password,
+                      onlyview: false,
+                    );
                   }));
                 },
                 child: const Text('open vnc viewer'),

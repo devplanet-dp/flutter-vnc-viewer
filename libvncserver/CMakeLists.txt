@@ -44,7 +44,7 @@ include_directories(
 
 # all the build configuration switches
 option(LIBVNCSERVER_INSTALL "Generate installation target" OFF)
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(WITH_ZLIB "Search for the zlib compression library to support additional encodings" ON)
 option(WITH_LZO "Search for the LZO compression library to omit internal miniLZO implementation" OFF)
 option(WITH_JPEG "Search for the libjpeg compression library to support additional encodings" OFF)

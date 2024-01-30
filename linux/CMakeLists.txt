@@ -13,7 +13,7 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 # This value is used when generating builds using this plugin, so it must
 # not be changed.
 set(PLUGIN_NAME "libvncviewer_flutter_plugin")
-
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 message(${CMAKE_CURRENT_SOURCE_DIR})
 #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libvncserver libvncserver)
 add_subdirectory(../libvncserver libvncserver)

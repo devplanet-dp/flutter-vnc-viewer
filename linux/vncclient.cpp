@@ -31,50 +31,37 @@ static rfbBool resize(rfbClient *client) {
   client->frameBuffer = get_my_texture_buffer(t->texture);
 
   switch (depth) {
-    case 8:
-      client->format.depth = 8;
-      client->format.bitsPerPixel = 8;
-      client->format.redShift = 0;
-      client->format.greenShift = 3;
-      client->format.blueShift = 6;
-      client->format.redMax = 7;
-      client->format.greenMax = 7;
-      client->format.blueMax = 3;
-      break;
-    case 16:
-      client->format.depth = 16;
-      client->format.bitsPerPixel = 16;
-      client->format.redShift = 11;
-      client->format.greenShift = 5;
-      client->format.blueShift = 0;
-      client->format.redMax = 0x1f;
-      client->format.greenMax = 0x3f;
-      client->format.blueMax = 0x1f;
-      break;
-    case 32:
-    default:
-      client->format.depth = 24;
-      client->format.bitsPerPixel = 32;
-      client->format.redShift = 0;
-      client->format.greenShift = 8;
-      client->format.blueShift = 16;
-      client->format.redMax = 0xff;
-      client->format.greenMax = 0xff;
-      client->format.blueMax = 0xff;
+  case 8:
+    client->format.depth = 8;
+    client->format.bitsPerPixel = 8;
+    client->format.redShift = 0;
+    client->format.greenShift = 3;
+    client->format.blueShift = 6;
+    client->format.redMax = 7;
+    client->format.greenMax = 7;
+    client->format.blueMax = 3;
+    break;
+  case 16:
+    client->format.depth = 16;
+    client->format.bitsPerPixel = 16;
+    client->format.redShift = 11;
+    client->format.greenShift = 5;
+    client->format.blueShift = 0;
+    client->format.redMax = 0x1f;
+    client->format.greenMax = 0x3f;
+    client->format.blueMax = 0x1f;
+    break;
+  case 32:
+  default:
+    client->format.depth = 24;
+    client->format.bitsPerPixel = 32;
+    client->format.redShift = 0;
+    client->format.greenShift = 8;
+    client->format.blueShift = 16;
+    client->format.redMax = 0xff;
+    client->format.greenMax = 0xff;
+    client->format.blueMax = 0xff;
   }
-  //  client->appData.encodingsString = "copyrect zlib hextile raw";
-  //  client->appData.compressLevel = 0;
-  //  client->appData.qualityLevel = 9;
-
-  //  client->appData.encodingsString =
-  //      "copyrect tight zrle ultra zlib hextile corre rre raw";
-  //  client->appData.compressLevel = 5;
-  //  client->appData.qualityLevel = 7;
-
-  client->appData.encodingsString =
-      "copyrect zrle ultra zlib hextile corre rre raw";
-  client->appData.compressLevel = 9;
-  client->appData.qualityLevel = 1;
 
   SetFormatAndEncodings(client);
 
@@ -101,19 +88,19 @@ static void kbd_leds(rfbClient *cl, int value, int pad) {
 
 static void text_chat(rfbClient *cl, int value, char *text) {
   switch (value) {
-    case (int)rfbTextChatOpen:
-      fprintf(stderr, "TextChat: We should open a textchat window!\n");
-      TextChatOpen(cl);
-      break;
-    case (int)rfbTextChatClose:
-      fprintf(stderr, "TextChat: We should close our window!\n");
-      break;
-    case (int)rfbTextChatFinished:
-      fprintf(stderr, "TextChat: We should close our window!\n");
-      break;
-    default:
-      fprintf(stderr, "TextChat: Received \"%s\"\n", text);
-      break;
+  case (int)rfbTextChatOpen:
+    fprintf(stderr, "TextChat: We should open a textchat window!\n");
+    TextChatOpen(cl);
+    break;
+  case (int)rfbTextChatClose:
+    fprintf(stderr, "TextChat: We should close our window!\n");
+    break;
+  case (int)rfbTextChatFinished:
+    fprintf(stderr, "TextChat: We should close our window!\n");
+    break;
+  default:
+    fprintf(stderr, "TextChat: Received \"%s\"\n", text);
+    break;
   }
   fflush(stderr);
 }
@@ -123,7 +110,8 @@ static void got_selection(rfbClient *cl, const char *text, int len) {
 }
 
 static void cleanup(rfbClient *cl) {
-  if (cl) rfbClientCleanup(cl);
+  if (cl)
+    rfbClientCleanup(cl);
 }
 VncClient::VncClient(string hostName, int port, string password) {
   this->hostName = hostName;

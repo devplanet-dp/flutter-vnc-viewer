@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:libvncviewer_flutter/libvncviewer_flutter.dart';
 import 'dart:io';
+import 'dart:ui';
 
 class VncViewerWidget extends StatefulWidget {
   String hostName;
@@ -133,7 +134,10 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
           builder: (context, async) {
             double ratio = MediaQuery.of(context).devicePixelRatio;
             _width = MediaQuery.of(context).size.width;
-            _height = MediaQuery.of(context).size.height;
+            //状态栏高度
+            double statusBarHeight =
+                MediaQueryData.fromWindow(window).padding.top;
+            _height = MediaQuery.of(context).size.height - statusBarHeight;
 
             Widget appBar = Container();
             Widget content = Container();
@@ -212,13 +216,14 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                     )),
               );
             } else {
-              if (_imageWidth > 0 && _width < _height) {
-                _scale = _width / _imageWidth;
-                _height = _imageHeight * _scale;
-              } else {
-                _scale = _height / _imageHeight;
-                _width = _imageWidth * _scale;
-              }
+              double horizontalScale = _width / _imageWidth;
+              double verticalScale = _height / _imageHeight;
+              // 选择较小的缩放比例，以确保图片可以完全显示在屏幕上
+              _scale = horizontalScale < verticalScale
+                  ? horizontalScale
+                  : verticalScale;
+              _width = _imageWidth * _scale;
+              _height = _imageHeight * _scale;
               if (widget.onlyview) {
                 content = Container(
                   width: MediaQuery.of(context).size.width,
@@ -228,12 +233,6 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                       onTap: () {
                         _showAppBar = !_showAppBar;
                         _streamController.add(1);
-                        // if (_showAppBar) {
-                        //   Future.delayed(Duration(seconds: 2), () {
-                        //     _showAppBar = false;
-                        //     setState(() {});
-                        //   });
-                        // }
                       },
                       child: InteractiveViewer(
                         scaleEnabled: true,

@@ -35,6 +35,8 @@ typedef void(^ImageResizeCallBack)(int width,int height);
 
 -(void)sendPointer:(int)x andY:(int)y andButtonMask:(int)buttonMask;
 
+-(void)SendKeyEvent:(int)key andDown:(bool)down;
+
 -(void)setTextureId:(int64_t)textureId;
 
 +(VncClient*) getVncClient:(int64_t)id;

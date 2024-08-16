@@ -17,4 +17,6 @@ public class VncClient{
 
     public native void closeRfbClient(long clientId);
 
+    public native void sendKeyEvent(long clientId, int key, boolean down);
+
 }

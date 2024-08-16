@@ -68,6 +68,15 @@ static void libvncviewer_flutter_plugin_handle_method_call(
     int64_t button_mask = fl_value_get_int(fl_value_get_map_value(value, 3));
     VncClient::getClient(clientId)->sendPointer(x, y, button_mask);
   }
+
+  if (strcmp(method, "sendKeyEvent") == 0) {
+    FlValue *value = fl_method_call_get_args(method_call);
+    int64_t clientId = fl_value_get_int(fl_value_get_map_value(value, 0));
+    int64_t key = fl_value_get_int(fl_value_get_map_value(value, 1));
+    int64_t down = fl_value_get_int(fl_value_get_map_value(value, 2));
+    VncClient::getClient(clientId)->sendKeyEvent(key, down);
+  }
+
   if (strcmp(method, "initVncClient") == 0) {
     const gchar *hostname =
         fl_value_get_string(fl_value_get_map_value(value, 0));

@@ -22,4 +22,8 @@ class LibvncviewerFlutter {
     return LibvncviewerFlutterPlatform.instance
         .sendPointer(clientId, x, y, mask);
   }
+
+  void sendKey(int clientId, int key, bool down) {
+    return LibvncviewerFlutterPlatform.instance.sendKey(clientId, key, down);
+  }
 }

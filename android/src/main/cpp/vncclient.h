@@ -40,6 +40,8 @@ public:
 
   void sendPointer(int x, int y, int buttonMask);
 
+  void sendKeyEvent(int key,  bool down);
+
   void sendErrorMsg(string msg);
 
 private:

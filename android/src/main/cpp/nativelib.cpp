@@ -62,6 +62,16 @@ Java_com_libvncserver_flutter_libvncviewer_1flutter_VncClient_sendPointer(JNIEnv
 }
 extern "C"
 JNIEXPORT void JNICALL
+Java_com_libvncserver_flutter_libvncviewer_1flutter_VncClient_sendKeyEvent(JNIEnv *env, jobject thiz,
+                                                                          jlong client_id, jint key,
+                                                                          jboolean down) {
+    auto client = VncClient::getVncClient(client_id);
+    if (client) {
+        client->sendKeyEvent(key, down);
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
 Java_com_libvncserver_flutter_libvncviewer_1flutter_VncClient_closeRfbClient(JNIEnv *env,
                                                                              jobject thiz,
                                                                              jlong client_id) {

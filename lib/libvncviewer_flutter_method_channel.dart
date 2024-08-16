@@ -38,4 +38,10 @@ class MethodChannelLibvncviewerFlutter extends LibvncviewerFlutterPlatform {
     methodChannel.invokeMethod(
         'sendPointer', {"clientId": clientId, "x": x, "y": y, "mask": mask});
   }
+
+  @override
+  void sendKey(int clientId, int key, bool down) {
+    methodChannel.invokeMethod(
+        'sendKey', {"clientId": clientId, "key": key, "down": down});
+  }
 }

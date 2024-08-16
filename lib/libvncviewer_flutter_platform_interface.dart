@@ -43,4 +43,9 @@ abstract class LibvncviewerFlutterPlatform extends PlatformInterface {
   void sendPointer(int clientId, int x, int y, int mask) {
     throw UnimplementedError('sendPointer() has not been implemented.');
   }
+
+  // Add a method channel to send key events
+  void sendKey(int clientId, int key, bool down) {
+    throw UnimplementedError('sendKey() has not been implemented.');
+  }
 }

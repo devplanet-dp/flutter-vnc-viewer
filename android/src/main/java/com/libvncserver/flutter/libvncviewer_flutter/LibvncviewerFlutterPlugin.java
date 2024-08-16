@@ -101,6 +101,12 @@ public class LibvncviewerFlutterPlugin implements FlutterPlugin, MethodCallHandl
             int mask = call.argument("mask");
             new VncClient().sendPointer(clientId, x, y, mask);
         }
+        if (call.method.equals("sendKey")) {
+            long clientId = call.argument("clientId");
+            int key = call.argument("key");
+            boolean down = call.argument("down");
+            new VncClient().sendKeyEvent(clientId, key, down);
+        }
         if (call.method.equals("initVncClient")) {
             TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = flutterPluginBinding.getTextureRegistry().createSurfaceTexture();
             SurfaceTexture surfaceTexture = surfaceTextureEntry.surfaceTexture();

@@ -101,6 +101,8 @@ static gboolean button_event (GtkWidget      *widget,
 	return TRUE;
 }
 
+
+
 static gboolean motion_notify_event (GtkWidget *widget,
                                      GdkEventMotion *event)
 {

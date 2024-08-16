@@ -74,6 +74,13 @@ static void rfbClientCallback(int64_t id,int code,NSString* flag,NSString* msg){
         int mask=[[call.arguments objectForKey:@"mask"] intValue];
         [[VncClient getVncClient:clientId] sendPointer:x andY:y andButtonMask:mask];
     }
+    if ([@"sendKey" isEqualToString:call.method]) {
+        int64_t clientId=[[call.arguments objectForKey:@"clientId"] longLongValue];
+        int key=[[call.arguments objectForKey:@"key"] intValue];
+        int down=[[call.arguments objectForKey:@"down"] intValue];
+        [[VncClient getVncClient:clientId] sendKey:key andDown:down];
+    }
+
     if ([@"initVncClient" isEqualToString:call.method]) {
         NSString* hostName=[call.arguments objectForKey:@"hostName"];
         int port=[[call.arguments objectForKey:@"port"] intValue];

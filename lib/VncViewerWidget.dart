@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:libvncviewer_flutter/libvncviewer_flutter.dart';
-import 'dart:io';
-import 'dart:ui';
 
 class VncViewerWidget extends StatefulWidget {
   String hostName;
@@ -14,7 +14,7 @@ class VncViewerWidget extends StatefulWidget {
   bool onlyview;
 
   VncViewerWidget(this.hostName, this.port, this.password,
-      {this.onlyview = true});
+      {super.key, this.onlyview = true});
 
   @override
   State<StatefulWidget> createState() => _VncViewerWidgetState();
@@ -22,12 +22,40 @@ class VncViewerWidget extends StatefulWidget {
 
 class _VncViewerWidgetState extends State<VncViewerWidget>
     with WidgetsBindingObserver {
+  bool _isKeyboardVisible = false;
+
+  void _showKeyboard() {
+    SystemChannels.textInput.invokeMethod('TextInput.show');
+    setState(() {
+      _isKeyboardVisible = true;
+    });
+  }
+
+  void _hideKeyboard() {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+    setState(() {
+      _isKeyboardVisible = false;
+    });
+  }
+
+  Widget _keyboardActionButton() {
+    return _ActionButtonWidget(
+        onPressed: () {
+          if (_isKeyboardVisible) {
+            _hideKeyboard();
+          } else {
+            _showKeyboard();
+          }
+        },
+        iconData: _isKeyboardVisible ? Icons.keyboard_hide : Icons.keyboard);
+  }
+
   static const EventChannel _channel =
-      const EventChannel('libvncviewer_flutter_eventchannel');
+      EventChannel('libvncviewer_flutter_eventchannel');
 
   StreamSubscription? _streamSubscription;
 
-  StreamController<int> _streamController = StreamController();
+  final StreamController<int> _streamController = StreamController();
 
   final _libvncviewerFlutterPlugin = LibvncviewerFlutter();
 
@@ -47,7 +75,7 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
 
   int _buttonMask = 0;
 
-  GlobalKey _vncViewKey = new GlobalKey();
+  final GlobalKey _vncViewKey = GlobalKey();
 
   bool _showAppBar = false;
 
@@ -109,6 +137,7 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
         }, cancelOnError: true);
       }
     });
+    _listenToKeyboard();
   }
 
   @override
@@ -118,16 +147,30 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
     print('Window metrics changed');
 
     if (Platform.isMacOS || Platform.isLinux) {
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         _streamController.add(1);
       });
     }
+  }
+
+  void _listenToKeyboard() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ServicesBinding.instance.keyboard.addHandler((event) {
+        _libvncviewerFlutterPlugin.sendKey(
+          _clientId,
+          event.logicalKey.keyId,
+          true,
+        );
+        return true;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(preferredSize: Size.zero, child: AppBar()),
+      floatingActionButton: _keyboardActionButton(),
       body: StreamBuilder<int>(
           initialData: _textureId,
           stream: _streamController.stream,
@@ -136,17 +179,17 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
             _width = MediaQuery.of(context).size.width;
             //状态栏高度
             double statusBarHeight =
-                MediaQueryData.fromWindow(window).padding.top;
+                MediaQueryData.fromView(window).padding.top;
             _height = MediaQuery.of(context).size.height - statusBarHeight;
 
             Widget appBar = Container();
             Widget content = Container();
             if (_showAppBar) {
-              appBar = Container(
+              appBar = SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: 50,
                   child: PreferredSize(
-                      preferredSize: Size.fromHeight(50),
+                      preferredSize: const Size.fromHeight(50),
                       child: AppBar(
                         automaticallyImplyLeading: false,
                         iconTheme: const IconThemeData(
@@ -159,8 +202,8 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                             Navigator.pop(context);
                           },
                         ),
-                        backgroundColor: Color.fromARGB(60, 0, 0, 0),
-                        toolbarTextStyle: TextStyle(color: Colors.white),
+                        backgroundColor: const Color.fromARGB(60, 0, 0, 0),
+                        toolbarTextStyle: const TextStyle(color: Colors.white),
                         actions: [
                           IconButton(
                               icon: const Icon(Icons.fullscreen),
@@ -194,7 +237,7 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                   if (_timer != null) {
                     _timer!.cancel();
                   }
-                  _timer = Timer.periodic(Duration(seconds: 3), (timer) {
+                  _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
                     _timer!.cancel();
                     _showAppBar = !_showAppBar;
                     _streamController.add(-1);
@@ -204,7 +247,7 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                     // width: MediaQuery.of(context).size.width,
                     // height: MediaQuery.of(context).size.height,
                     color: Colors.white,
-                    child: Column(
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         CupertinoActivityIndicator(
@@ -237,7 +280,7 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
                       child: InteractiveViewer(
                         scaleEnabled: true,
                         child: Center(
-                          child: Container(
+                          child: SizedBox(
                             width: _width,
                             height: _height,
                             child: Texture(
@@ -338,6 +381,23 @@ class _VncViewerWidgetState extends State<VncViewerWidget>
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _streamSubscription!.cancel();
     _libvncviewerFlutterPlugin.closeVncClient(_clientId);
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
+  }
+}
+
+class _ActionButtonWidget extends StatelessWidget {
+  const _ActionButtonWidget(
+      {required this.onPressed, required this.iconData, super.key});
+  final VoidCallback onPressed;
+  final IconData iconData;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(100),
+      onTap: onPressed,
+      child: CircleAvatar(
+          backgroundColor: Colors.red,
+          child: Icon(iconData, color: Colors.white, size: 28)),
+    );
   }
 }

@@ -280,6 +280,10 @@ static void cleanup(rfbClient *cl) {
     SendPointerEvent(self.cl, x, y, buttonMask);
 }
 
+-(void)sendKey:(int)key andDown:(bool)down{
+    SendKeyEvent(self.cl, key, down);
+}
+
 +(VncClient*) getVncClient:(int64_t)id{
     return [clientDictionary objectForKey:@(id)];
 }

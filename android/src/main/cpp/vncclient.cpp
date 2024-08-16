@@ -294,6 +294,10 @@ void VncClient::sendPointer(int x, int y, int buttonMask) {
   SendPointerEvent(cl, x, y, buttonMask);
 }
 
+void VncClient::sendKeyEvent(int key, bool down) {
+    SendKeyEvent(cl, key, down);
+}
+
 void VncClient::sendErrorMsg(string msg) {
   if (running && javaObj) {
     JNIEnv *env;

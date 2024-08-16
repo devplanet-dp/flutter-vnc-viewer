@@ -57,10 +57,10 @@ class _MyAppState extends State<MyApp> {
 
 class AppPage extends StatelessWidget {
   TextEditingController _hostNameEditingController = new TextEditingController()
-    ..text = "";
+    ..text = "185.221.36.9";
 
   TextEditingController _portEditingController = new TextEditingController()
-    ..text = "5900";
+    ..text = "52100";
 
   TextEditingController _passwordEditingController = new TextEditingController()
     ..text = "123456";

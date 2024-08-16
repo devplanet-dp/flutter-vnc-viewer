@@ -1,4 +1,4 @@
-# libvncviewer_flutter
+# flutter-vnc-viewer
 
 LibVncViewer Flutter plugins.
 
